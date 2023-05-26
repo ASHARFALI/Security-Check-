@@ -1,0 +1,15 @@
+vars:
+  
+  - ssh_port_output 
+  - root_uid
+  - Password_Auth
+  - x11_forwarding
+  - permit_root_login_prohibited
+  - permit_empty_passwords_enabledi
+  - host_based_authenticatio_enabled
+  - pam_enabled
+  - rsa_present
+  - printmode_output
+  - log_level_info
+  - sys_log_facility
+  - strict_modes

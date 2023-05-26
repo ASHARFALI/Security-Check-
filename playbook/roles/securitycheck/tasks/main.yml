@@ -1,0 +1,157 @@
+    - name: Read SSH port from SSH configuration file
+      ansible.builtin.shell: "grep -E '^Port' /etc/ssh/sshd_config | awk '{print$2}'"
+      register: ssh_port_output
+      changed_when: false
+
+    - name: Display SSH port number
+      ansible.builtin.debug:
+        msg: "SSH port number: {{ ssh_port_output.stdout }}"
+
+    - name: Warn about default default port number
+      debug:
+        msg: "The SSH port (22) is open. It is recommended to change the default SSH port for improved security."
+
+
+    - name: Get root user UID
+      shell:  id -u root
+      register: root_uid
+    - name: print uid
+      debug:
+        var: root_uid
+
+    - name: Check if root UID is 0
+      fail:
+        msg: "Root UID is not 0"
+      when: root_uid.stdout != '0'
+
+
+    - name: check Password Authentication enabled or not
+      lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^#PasswordAuthentication"
+        line: "#PasswordAuthentication"
+      register: Password_Auth
+
+    - name: Dispaly Warn Message
+      debug:
+        msg: "Password Authentication is enabled. for better security Enable Public Key Authentication."
+      when: Password_Auth is succeeded
+
+
+
+    - name: Check X11 Forwarding configuration
+      lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^X11Forwarding"
+        line: "X11Forwarding"
+      register: x11_forwarding
+
+    - name: Display warning message  about X11 forwarding
+      debug:
+        msg: "X11Forwarding Enabled. for more security Disable X11Forwarding"
+      when: x11_forwarding is succeeded
+
+
+    - name: Read sshd_config file
+      slurp:
+        src: /etc/ssh/sshd_config
+      register: sshd_config
+
+    - name: Check PermitRootLogin configuration
+      set_fact:
+        permit_root_login_prohibited: "{{ sshd_config.content | b64decode | regex_search('^\\s*PermitRootLogin\\s+prohibit-password', multiline=True) }}"
+      changed_when: false
+
+    - name: Display PermitRootLogin Status
+      debug:
+        msg: |
+          PermitRootLogin is {{ 'prohibit-password' if permit_root_login_prohibited else 'Password not set to permit_root_login' }} in sshd_config.
+
+
+    - name: Check if PermitEmptyPasswords is enabled
+      set_fact:
+        permit_empty_passwords_enabled: "{{ sshd_config.content | b64decode | regex_search('^\\s*PermitEmptyPasswords\\s+(yes|no)', multiline=True) }}"
+      changed_when: false
+
+    - name: Display PermitEmptyPasswords status
+      debug:
+        msg: |
+          PermitEmptyPasswords is {{ 'enabled' if permit_empty_passwords_enabled else 'disabled' }} in sshd_config.
+
+
+
+    - name: Check if HostbasedAuthentication is enabled
+      set_fact:
+       host_based_authenticatio_enabled: "{{ sshd_config.content | b64decode | regex_search('^\\s*HostbasedAuthentication\\s+(yes|no)', multiline=True) }}"
+      changed_when: false
+
+    - name: Display HostbasedAuthentication status
+      debug:
+        msg: |
+          HostbasedAuthentication is {{ 'enabled' if host_based_authenticatio_enabled else 'disabled' }} in sshd_config.
+
+
+    - name: check PAM Status
+      shell: cat /etc/ssh/sshd_config | grep -q "UsePAM yes"
+      register: pam_output
+      ignore_errors: true
+
+    - name: Display PAM Status
+      debug:
+        msg: PAM (pluggble authentication mode) is {{'Enabled' if pam_output.rc == 0 else 'Disabled' }} in sshd_config file
+
+
+
+    - name: Check RSAAuthentication Status
+      set_fact: 
+        rsa_present: "{{ sshd_config.content | b64decode | regex_search('^\\s*RSAAuthentication\\s+(yes|no)', multiline=true) }}"
+      changed_when: false
+
+    - name: Display RSAAuthentication Status
+      debug:
+        msg: RSAAuthentication is {{ 'Present' if rsa_present else 'Not Present' }} in sshd_config file.
+
+
+    - name: Check PrintMode Service Status
+      shell: cat /etc/ssh/sshd_config | grep -q "PrintMotd no"
+      register: printmode_output
+      ignore_errors: true
+
+    - name: Display PrintMode Status
+      debug:
+        msg: PrintMode is {{ 'Disabled' if printmode_output.rc == 0 else 'Enabled' }} in sshd_config file
+
+
+    - name: Check LogLevel INFO Status
+      set_fact:
+        log_level_info: "{{ sshd_config.content | b64decode | regex_search('^\\s*LogLevel INFO\\s+(yes|no)', multiline=True) }}"
+      changed_when: false
+
+    - name: Display LogLevel INFO Status
+      debug:
+        msg: LogLevel INFO is {{ 'Enabled' if log_level_info else 'Disabled' }} in sshd_config file.
+
+
+    - name: Check syslogFacility status in sshd_config
+      set_fact:
+        sys_log_facility: "{{ sshd_config.content | b64decode | regex_search('^\\s*SyslogFacility AUTH\\s+(yes|no)', multiline=True) }}"
+      changed_when: false
+
+    - name: Display Status of syslogFacility
+      debug:
+        msg: syslogFacility is {{ 'Enabled' if sys_log_facility else 'Disabled'}} in sshd_config file
+
+
+    - name: Check StrictModes status in sshd_config
+      set_fact:
+        strict_modes: "{{ sshd_config.content | b64decode | regex_search('^\\s*StrictModes\\s+(yes|no)', multiline=True) }}"
+      changed_when: false
+
+    - name: Display Status of StrictModes in sshd_config
+      debug:
+        msg:  StrictModes {{ 'Enabled' if  strict_modes else 'Disabled'}} in sshd_config file
+
+
+
+
+

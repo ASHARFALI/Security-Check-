@@ -1,0 +1,139 @@
+
+PLAY [security check] **********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [securitycheck : Read SSH port from SSH configuration file] ***************
+ok: [localhost]
+
+TASK [securitycheck : Display SSH port number] *********************************
+ok: [localhost] => {
+    "msg": "SSH port number: 22"
+}
+
+TASK [securitycheck : Warn about default default port number] ******************
+ok: [localhost] => {
+    "msg": "The SSH port (22) is open. It is recommended to change the default SSH port for improved security."
+}
+
+TASK [securitycheck : Get root user UID] ***************************************
+changed: [localhost]
+
+TASK [securitycheck : print uid] ***********************************************
+ok: [localhost] => {
+    "root_uid": {
+        "changed": true,
+        "cmd": "id -u root",
+        "delta": "0:00:00.002619",
+        "end": "2023-05-25 22:43:53.559516",
+        "failed": false,
+        "msg": "",
+        "rc": 0,
+        "start": "2023-05-25 22:43:53.556897",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "0",
+        "stdout_lines": [
+            "0"
+        ]
+    }
+}
+
+TASK [securitycheck : Check if root UID is 0] **********************************
+skipping: [localhost]
+
+TASK [securitycheck : check Password Authentication enabled or not] ************
+ok: [localhost]
+
+TASK [securitycheck : Dispaly Warn Message] ************************************
+ok: [localhost] => {
+    "msg": "Password Authentication is enabled. for better security Enable Public Key Authentication."
+}
+
+TASK [securitycheck : Check X11 Forwarding configuration] **********************
+ok: [localhost]
+
+TASK [securitycheck : Display warning message  about X11 forwarding] ***********
+ok: [localhost] => {
+    "msg": "X11Forwarding Enabled. for more security Disable X11Forwarding"
+}
+
+TASK [securitycheck : Read sshd_config file] ***********************************
+ok: [localhost]
+
+TASK [securitycheck : Check PermitRootLogin configuration] *********************
+ok: [localhost]
+
+TASK [securitycheck : Display PermitRootLogin Status] **************************
+ok: [localhost] => {
+    "msg": "PermitRootLogin is Password not set to permit_root_login in sshd_config.\n"
+}
+
+TASK [securitycheck : Check if PermitEmptyPasswords is enabled] ****************
+ok: [localhost]
+
+TASK [securitycheck : Display PermitEmptyPasswords status] *********************
+ok: [localhost] => {
+    "msg": "PermitEmptyPasswords is disabled in sshd_config.\n"
+}
+
+TASK [securitycheck : Check if HostbasedAuthentication is enabled] *************
+ok: [localhost]
+
+TASK [securitycheck : Display HostbasedAuthentication status] ******************
+ok: [localhost] => {
+    "msg": "HostbasedAuthentication is disabled in sshd_config.\n"
+}
+
+TASK [securitycheck : check PAM Status] ****************************************
+changed: [localhost]
+
+TASK [securitycheck : Display PAM Status] **************************************
+ok: [localhost] => {
+    "msg": "PAM (pluggble authentication mode) is Enabled in sshd_config file"
+}
+
+TASK [securitycheck : Check RSAAuthentication Status] **************************
+ok: [localhost]
+
+TASK [securitycheck : Display RSAAuthentication Status] ************************
+ok: [localhost] => {
+    "msg": "RSAAuthentication is Not Present in sshd_config file."
+}
+
+TASK [securitycheck : Check PrintMode Service Status] **************************
+changed: [localhost]
+
+TASK [securitycheck : Display PrintMode Status] ********************************
+ok: [localhost] => {
+    "msg": "PrintMode is Disabled in sshd_config file"
+}
+
+TASK [securitycheck : Check LogLevel INFO Status] ******************************
+ok: [localhost]
+
+TASK [securitycheck : Display LogLevel INFO Status] ****************************
+ok: [localhost] => {
+    "msg": "LogLevel INFO is Disabled in sshd_config file."
+}
+
+TASK [securitycheck : Check syslogFacility status in sshd_config] **************
+ok: [localhost]
+
+TASK [securitycheck : Display Status of syslogFacility] ************************
+ok: [localhost] => {
+    "msg": "syslogFacility is Disabled in sshd_config file"
+}
+
+TASK [securitycheck : Check StrictModes status in sshd_config] *****************
+ok: [localhost]
+
+TASK [securitycheck : Display Status of StrictModes in sshd_config] ************
+ok: [localhost] => {
+    "msg": "StrictModes Disabled in sshd_config file"
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=29   changed=3    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+
